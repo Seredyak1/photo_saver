@@ -45,6 +45,7 @@ urlpatterns = [
     path("alive/", simple_health_check, name="simple_health_check"),
     path('admin/', admin.site.urls),
 
+    path("saver/", include("app_saver.urls")),
 ]
 
 if settings.DEBUG:
