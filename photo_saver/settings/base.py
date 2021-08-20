@@ -128,3 +128,9 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.FormParser',
     ),
 }
+
+# Celery settings
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379')
+CELERY_accept_content = ['application/json']
+CELERY_result_serializer = 'json'
+CELERY_task_serializer = 'json'
