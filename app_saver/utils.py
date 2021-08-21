@@ -65,3 +65,5 @@ class UnsplashPhotoLoader:
 
             self.daily_load.loaded_images = self.current_load
             self.daily_load.save()
+
+            self.page += 1
