@@ -17,7 +17,7 @@ DATABASES = {
 }
 
 USE_HASHED_TOKEN = os.environ.get('TOKEN_KEY', True)
-TOKEN_KEY = os.environ.get('TOKEN_KEY', "afdg234fdg34kj2n46mfdg6n6wn3m6n34fdg346hkljkn3n235eafn")
+TOKEN_KEY = os.environ.get('TOKEN_KEY', "As1x64")
 
 USE_S3_STORAGE = os.environ.get("USE_S3_STORAGE", False)
 
@@ -46,3 +46,6 @@ else:
     STATIC_ROOT = 'static/'
     MEDIA_URL = '/media/'
     MEDIA_ROOT = 'media/'
+
+UNSPLASH_ACCESS_KEY = os.environ.get('TOKEN_KEY', "")
+UNSPLASH_SECRET_KEY = os.environ.get('TOKEN_KEY', "")

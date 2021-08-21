@@ -4,12 +4,13 @@ from django.conf import settings
 
 
 def get_image_path(instance, filename):
-    return os.path.join(settings.MEDIA_ROOT, f"{instance.saved_at}/", filename)
+    return os.path.join(f"{instance.saved_at}/", filename)
 
 
 class SavedImage(models.Model):
 
     name = models.TextField()
+    description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to=get_image_path)
     size = models.IntegerField(blank=True, null=True)
     saved_at = models.DateField(blank=True, null=True)
