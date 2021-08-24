@@ -1,14 +1,15 @@
+from datetime import datetime, timedelta
 from rest_framework import generics
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-
-from .models import SavedImage
+from .models import SavedImage, UnsplashDailyLoad
 from .serializers import SavedImageSerializer
 from .filters import SavedImageFilter
 from .utils import UnsplashPhotoLoader
+from .tasks import load_new_images
 
 
 class SavedImageAPIView(generics.ListAPIView):
@@ -26,5 +27,11 @@ class SavedImageAPIView(generics.ListAPIView):
 
 @api_view(("POST",))
 def load_new_images(request, *args, **kwargs):
-    UnsplashPhotoLoader().load_new_images()
-    return Response("Loading start")
+    last_daily_load = UnsplashDailyLoad.objects.all().order_by("-last_load_time").last()
+    time_diff = (datetime.now() + timedelta(hours=1)).timestamp() - last_daily_load.timestamp()
+    if not time_diff > 3660:
+        return Response({"error": "Less one hour from last load!", "seconds": time_diff},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    load_new_images.delay()
+    return Response({"detail": "Loading start"}, status=status.HTTP_201_CREATED)
