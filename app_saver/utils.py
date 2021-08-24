@@ -1,6 +1,6 @@
 import io
 import requests
-from datetime import date
+from datetime import datetime, date
 from django.conf import settings
 from django.core.files.images import ImageFile
 
@@ -27,14 +27,24 @@ class UnsplashPhotoLoader:
         dl, s = UnsplashDailyLoad.objects.get_or_create(day=self.date_today)
         return dl
 
-    def __save_image(self, image_url: str, image_description: str):
-        img_res = requests.get(image_url, stream=True)
-        img_content = img_res.content
-        name = image_url.split("/")[-1].split("?")[0]
-        image = ImageFile(io.BytesIO(img_content), name=f'{name}.jpg')
+    def __save_image(self, image_element: dict):
+        external_id = image_element.get("id")
+        image_description = image_element['description']
+        full_url = image_element.get("urls", {}).get("full", "")
+        name = full_url.split("/")[-1].split("?")[0]
 
-        SavedImage.objects.create(name=name, saved_at=self.date_today,
-                                  description=image_description, image=image)
+        full_img_res = requests.get(full_url, stream=True)
+        full_img_content = full_img_res.content
+        full_image = ImageFile(io.BytesIO(full_img_content), name=f'{name}_full.jpg')
+
+        small_url = image_element.get("urls", {}).get("small", "")
+        small_img_res = requests.get(small_url, stream=True)
+        small_img_content = small_img_res.content
+        small_image = ImageFile(io.BytesIO(small_img_content), name=f'{name}_small.jpg')
+
+        SavedImage.objects.create(external_id=external_id, name=name, saved_at=self.date_today,
+                                  description=image_description,
+                                  full_image=full_image, small_image=small_image)
 
     def __get_images_list(self) -> dict:
         """
@@ -49,21 +59,18 @@ class UnsplashPhotoLoader:
         return images_res
 
     def load_new_images(self):
-        # todo add right values
-        while self.page < 2:
+        while self.page < 41:
             images_res = self.__get_images_list()
 
             for image in images_res:
-                image_urls = image.get("urls", None)
-                if not image_urls:
-                    pass
-                else:
-                    image_description = image['description']
-                    image_url = image_urls.get("full")
-                    self.__save_image(image_url, image_description)
+                try:
+                    self.__save_image(image)
                     self.current_load += 1
+                except Exception as e:
+                    print(e)
 
             self.daily_load.loaded_images = self.current_load
+            self.daily_load.last_load_time = datetime.now()
             self.daily_load.save()
 
             self.page += 1

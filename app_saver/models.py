@@ -10,8 +10,11 @@ def get_image_path(instance, filename):
 class SavedImage(models.Model):
 
     name = models.TextField()
+    external_id = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to=get_image_path)
+
+    full_image = models.ImageField(upload_to=get_image_path)
+    small_image = models.ImageField(upload_to=get_image_path)
     size = models.IntegerField(blank=True, null=True)
     saved_at = models.DateField(blank=True, null=True)
 
@@ -23,6 +26,7 @@ class UnsplashDailyLoad(models.Model):
 
     day = models.DateField()
     loaded_images = models.IntegerField(default=0)
+    last_load_time = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
