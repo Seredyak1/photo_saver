@@ -72,4 +72,4 @@ jobs:
       id: restart-service
       run: |
         echo "Restarting service..."
-        aws ecs update-service --cluster photo-saver-development --service photo-saver-dev-service --force-new-deployment
+        aws ecs update-service --cluster photo-saver-cluster-dev --service photo-saver-service-dev --force-new-deployment
