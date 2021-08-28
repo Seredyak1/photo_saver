@@ -4,7 +4,10 @@ from django.conf import settings
 
 
 def get_image_path(instance, filename):
-    return os.path.join(f"{instance.saved_at}/", filename)
+    if settings.USE_S3_STORAGE:
+        return os.path.join(settings.MEDIAFILES_LOCATION, f"{instance.saved_at}/", filename)
+    else:
+        return os.path.join(f"{instance.saved_at}/", filename)
 
 
 class SavedImage(models.Model):
