@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 @api_view(["GET"])
 @schema(None)
-# @authentication_classes([])
+@authentication_classes([])
 @permission_classes([AllowAny,])
 def simple_health_check(request):
     return Response()
