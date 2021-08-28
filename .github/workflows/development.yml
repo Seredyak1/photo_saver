@@ -68,8 +68,8 @@ jobs:
         # Push it to ECR so that it can be deployed to ECS.
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-#    - name: Restart Service with new image
-#      id: restart-service
-#      run: |
-#        echo "Restarting service..."
-#        aws ecs update-service --cluster gw-cluster-development --service gw-api-development-service --force-new-deployment
+    - name: Restart Service with new image
+      id: restart-service
+      run: |
+        echo "Restarting service..."
+        aws ecs update-service --cluster photo-saver-development --service photo-saver-dev-service --force-new-deployment

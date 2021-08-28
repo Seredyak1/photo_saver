@@ -47,5 +47,5 @@ else:
     MEDIA_URL = '/media/'
     MEDIA_ROOT = 'media/'
 
-UNSPLASH_ACCESS_KEY = os.environ.get('TOKEN_KEY', "")
-UNSPLASH_SECRET_KEY = os.environ.get('TOKEN_KEY', "")
+UNSPLASH_ACCESS_KEY = os.environ.get('UNSPLASH_ACCESS_KEY', "")
+UNSPLASH_SECRET_KEY = os.environ.get('UNSPLASH_SECRET_KEY', "")
