@@ -14,6 +14,6 @@ class IsConfirmedServer(permissions.BasePermission):
         else:
             token = request.META.get('HTTP_AUTH_KEY', None)
             if token:
-                if settings.AUTH_TOKEN == token:
+                if settings.TOKEN_KEY == token:
                     return True
         return False
