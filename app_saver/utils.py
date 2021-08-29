@@ -1,10 +1,13 @@
 import io
+import json
+
 import requests
 from datetime import datetime, date
 from django.conf import settings
 from django.core.files.images import ImageFile
 
 from .models import UnsplashDailyLoad, SavedImage
+from .serializers import SavedImageSerializer
 
 
 class UnsplashPhotoLoader:
@@ -27,11 +30,15 @@ class UnsplashPhotoLoader:
         dl, s = UnsplashDailyLoad.objects.get_or_create(day=self.date_today)
         return dl
 
-    def __save_image(self, image_element: dict):
-        external_id = image_element.get("id")
-        image_description = image_element['description']
+    @staticmethod
+    def __save_image(image_element: dict):
+        image_element["external_id"] = image_element.get("id")
         full_url = image_element.get("urls", {}).get("full", "")
         name = full_url.split("/")[-1].split("?")[0]
+        image_element['name'] = name
+        image_element['downloads_count'] = image_element.get("downloads", 0)
+        if "user" in image_element.keys():
+            image_element['user'] = json.dumps(image_element['user'])
 
         full_img_res = requests.get(full_url, stream=True)
         full_img_content = full_img_res.content
@@ -42,9 +49,12 @@ class UnsplashPhotoLoader:
         small_img_content = small_img_res.content
         small_image = ImageFile(io.BytesIO(small_img_content), name=f'{name}_small.jpg')
 
-        SavedImage.objects.create(external_id=external_id, name=name, saved_at=self.date_today,
-                                  description=image_description,
-                                  full_image=full_image, small_image=small_image)
+        image_element.update({"full_image": full_image, "small_image": small_image,
+                              "saved_at": date.today()})
+
+        image_sz = SavedImageSerializer(data=image_element)
+        image_sz.is_valid(raise_exception=True)
+        image_sz.save()
 
     def __get_images_list(self) -> dict:
         """
@@ -61,7 +71,6 @@ class UnsplashPhotoLoader:
     def load_new_images(self):
         while self.page < 41:
             images_res = self.__get_images_list()
-
             for image in images_res:
                 try:
                     self.__save_image(image)

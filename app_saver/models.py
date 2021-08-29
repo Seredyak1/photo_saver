@@ -1,11 +1,13 @@
 import os
+from datetime import date
 from django.db import models
 from django.conf import settings
+from jsonfield import JSONField
 
 
 def get_image_path(instance, filename):
     if settings.USE_S3_STORAGE:
-        return os.path.join(settings.MEDIAFILES_LOCATION, f"{instance.saved_at}/", filename)
+        return os.path.join(settings.MEDIAFILES_LOCATION, f"{date.today()}/", filename)
     else:
         return os.path.join(f"{instance.saved_at}/", filename)
 
@@ -15,9 +17,15 @@ class SavedImage(models.Model):
     name = models.TextField()
     external_id = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    width = models.IntegerField(blank=True, null=True)
+    height = models.IntegerField(blank=True, null=True)
+    color = models.CharField(max_length=32, blank=True, null=True)
+    downloads_count = models.IntegerField(blank=True, null=True)
+    user = JSONField(blank=True, null=True)
 
     full_image = models.ImageField(upload_to=get_image_path)
     small_image = models.ImageField(upload_to=get_image_path)
+
     size = models.IntegerField(blank=True, null=True)
     saved_at = models.DateField(blank=True, null=True)
 
