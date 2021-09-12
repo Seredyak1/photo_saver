@@ -12,9 +12,28 @@ def get_image_path(instance, filename):
         return os.path.join(f"{instance.saved_at}/", filename)
 
 
+class ImagesTopic(models.Model):
+
+    name = models.TextField()
+    slug_name = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    external_id = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def images_count(self):
+        count = SavedImage.objects.filter(topic=self).count()
+        return count
+
+
 class SavedImage(models.Model):
 
     name = models.TextField()
+    topic = models.ForeignKey(ImagesTopic, on_delete=models.SET_NULL, blank=True, null=True)
+
     external_id = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     width = models.IntegerField(blank=True, null=True)
